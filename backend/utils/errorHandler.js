@@ -1,6 +1,6 @@
 class apiError extends Error{
     constructor(
-        message="Unknown error has occured",
+        message,
         statusCode
 
     ){

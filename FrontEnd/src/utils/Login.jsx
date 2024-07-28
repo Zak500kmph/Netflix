@@ -1,4 +1,7 @@
+import axios from "axios"
+import toast from "react-hot-toast"
 import { useState,useRef } from "react"
+import { api } from "../../constant"
 
 function Login(){
     const [newUser,setUser]=useState(false)
@@ -8,14 +11,41 @@ function Login(){
     let email=useRef()
     let password=useRef()
     let username=useRef()
-    function loginHandler(e){
+    async function loginHandler(e){
         e.preventDefault()
-        var Email
+       
         if(newUser){
-          Email=email.current.value
+            //   register
+         try {
+             const Email=email.current.value
+             const Password=password.current.value
+            const Username=username.current.value
+            const option ={Username,Email,Password} 
+            
+            const responce=await axios.post(`${api}/reg`,option)
+            if(responce.data.code==200){
+             toast.success(responce.data.message)
+            }
+         } catch (error) {
+            toast.success("Sorry")
+         }
+            
+         
+       
+
+        }else{
+            try {
+                const Username=username.current.value
+                const Password=password.current.value
+                const option ={Username,Password} 
+                const response=await axios.post(`${api}/login`,option)
+                console.log(response)
+              toast.success(response.data.message)
+            } catch (error) {
+                toast.error("Enter your credential correctly")
+            }
         }
-         const Password=password.current.value
-         const Username=username.current.value
+        
          password.current.value=""
          
          

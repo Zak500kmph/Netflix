@@ -19,8 +19,11 @@ return [accessToken,refreshToken]
 
 export const register=asyncHandler(
     async (req,res)=>{
-        const {username,password,email}=req.body
-        if([username,password,email].some((item)=>item?.trim()=="")){
+        const {Username,Password,Email}=req.body
+        const username=Username
+        const password=Password
+        const email=Email
+        if(!username||!password||!email){
             throw new apiError("All fields are required ",409)
         }
         const user= await User.findOne({
@@ -30,6 +33,7 @@ export const register=asyncHandler(
            throw new apiError("already exist",400)
 
         }
+        console.log(username,password,email)
         const createdUser=await User.create({
           username,
           password,
@@ -37,31 +41,33 @@ export const register=asyncHandler(
         })
         generateRefreshAccessToken(createdUser._id)// very important to note 
         // deleteAll()
-        res.json(new apiResponse("message",createdUser._id,200))
+        res.json(new apiResponse("user-created successfully",createdUser._id,200))
     }
 )
 export const login =asyncHandler(async (req,res)=>{
-   const {username,password}=req.body
-   
-   if([username,password].some((item)=>item?.trim()=="")){
-       return new apiError("please enter your username and password both",404)
+    const {Username,Password}=req.body
+    const username=Username
+    const password=Password
+    if(!username||!password){
+        console.log("iam controller")
+        throw new apiError("please enter your username and password both",404)
     }
     const user=await User.findOne({username})
-    
     if(!user){
         throw new apiError("please enter valid credential",404)
     }
-   const userPasswordverifier=user.isPasswordCorrect(password)
-   if(!userPasswordverifier){
-       return apiError("the Entered password is incorrect")
+    const userPasswordverifier=await user.isPasswordCorrect(password)
+    if(!userPasswordverifier){
+        console.log("incorrect")
+        throw new apiError("the Entered password is incorrect")
     }
-  const [refreshToken,accessToken]=await generateRefreshAccessToken(user._id)
-   let option={
-    httpOnly:true,
-    secure:true
-   }
-   user.password=" ";
-   user.refreshToken=refreshToken
+    const [refreshToken,accessToken]=await generateRefreshAccessToken(user._id)
+    let option={
+        httpOnly:true,
+        secure:true
+    }
+    user.password=" ";
+    user.refreshToken=refreshToken
 
    res.status(200).cookie("refreshToken",refreshToken,option).cookie("accessToken",accessToken,option).json(new apiResponse("User Log In Successfully",
     {

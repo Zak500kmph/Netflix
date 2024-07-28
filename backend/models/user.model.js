@@ -29,6 +29,7 @@ Users.pre("save",async function (next){
    next()
 })
 Users.methods.isPasswordCorrect=async function (password_input){
+   console.log("model")
 return await bcrypt.compare(password_input,this.password)// it return true if inputpassword == encrptpassword
 } 
 Users.methods.generateAccesToken=async function (){
