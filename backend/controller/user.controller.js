@@ -5,6 +5,7 @@ import { apiResponse } from "../utils/response.js"
 async function deleteAll(){
     await User.deleteMany({})
 }
+
 async function generateRefreshAccessToken(userId){
     const user=await User.findById(userId)
     const refreshToken=await user.generateRefreshToken()
@@ -14,6 +15,7 @@ await user.save({validateBefeoreSave:false})
 return [accessToken,refreshToken]
 
 }
+
 
 export const register=asyncHandler(
     async (req,res)=>{
@@ -42,17 +44,17 @@ export const login =asyncHandler(async (req,res)=>{
    const {username,password}=req.body
    
    if([username,password].some((item)=>item?.trim()=="")){
-    return apiError("please enter your username and password both",404)
-   }
-   const user=await User.findOne({username})
-   
-   if(!user){
-    return apiError("No user found with this username",300)
-   }
+       return new apiError("please enter your username and password both",404)
+    }
+    const user=await User.findOne({username})
+    
+    if(!user){
+        throw new apiError("please enter valid credential",404)
+    }
    const userPasswordverifier=user.isPasswordCorrect(password)
    if(!userPasswordverifier){
-    return apiError("the Entered password is incorrect")
-   }
+       return apiError("the Entered password is incorrect")
+    }
   const [refreshToken,accessToken]=await generateRefreshAccessToken(user._id)
    let option={
     httpOnly:true,
@@ -60,7 +62,6 @@ export const login =asyncHandler(async (req,res)=>{
    }
    user.password=" ";
    user.refreshToken=refreshToken
-
 
    res.status(200).cookie("refreshToken",refreshToken,option).cookie("accessToken",accessToken,option).json(new apiResponse("User Log In Successfully",
     {
@@ -72,3 +73,22 @@ export const login =asyncHandler(async (req,res)=>{
     200
  ))
 } )
+
+
+export const logout=asyncHandler(async (req,res)=>{
+    const {user}=req
+    const newUser=await User.findOneAndUpdate(user._id,{
+        $set:{
+            refreshToken:""
+        }
+    },{
+        new:true
+    })
+    const options={
+            "httpOnly":true,
+            "secure": true
+          }
+          res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new  apiResponse("User LogOut",{},"200"))
+    
+
+})
