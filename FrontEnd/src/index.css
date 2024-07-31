@@ -3,4 +3,8 @@
 @tailwind utilities;
 .main{
     background-image: url("https://www.techhive.com/wp-content/uploads/2023/10/Netflix-Hintergrund.jpg?quality=50&strip=all");
+    height: 100vh;
+    width: 100%;
+    background-size: cover;
+    
 }

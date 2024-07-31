@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js"
 import { apiError } from "../utils/errorHandler.js"
 async function verifyUser(req,_,next){
     try {
+        console.log("req")
         const token =req.cookies?.accessToken||req.header("Authorization")?.replace("Bearer ","")
         if(!token){throw new ApiError("Unauthorized Request",400)}
         const info=await jwt.verify(token,process.env.REFERSH_TOKEN_SECRET)

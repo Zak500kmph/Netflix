@@ -3,8 +3,10 @@ import express from "express"
 import "dotenv/config"
 const app=express()
 import cors from "cors"
+
 const option={
-    origin:process.env.FRONT_END_SERVER
+    origin:process.env.FRONT_END_SERVER,
+    credentials:true
 }
 
 app.use(cors(option))

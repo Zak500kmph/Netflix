@@ -2,8 +2,10 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 import { apiError } from "../utils/errorHandler.js"
 import { User } from "../models/user.model.js"
 import { apiResponse } from "../utils/response.js"
-async function deleteAll(){
+async function deleteAll(req,res){
     await User.deleteMany({})
+    res.send("all files deleted")
+
 }
 
 async function generateRefreshAccessToken(userId){
@@ -33,7 +35,7 @@ export const register=asyncHandler(
            throw new apiError("already exist",400)
 
         }
-        console.log(username,password,email)
+        
         const createdUser=await User.create({
           username,
           password,
@@ -49,7 +51,7 @@ export const login =asyncHandler(async (req,res)=>{
     const username=Username
     const password=Password
     if(!username||!password){
-        console.log("iam controller")
+     
         throw new apiError("please enter your username and password both",404)
     }
     const user=await User.findOne({username})
@@ -58,7 +60,7 @@ export const login =asyncHandler(async (req,res)=>{
     }
     const userPasswordverifier=await user.isPasswordCorrect(password)
     if(!userPasswordverifier){
-        console.log("incorrect")
+       
         throw new apiError("the Entered password is incorrect")
     }
     const [refreshToken,accessToken]=await generateRefreshAccessToken(user._id)
@@ -94,7 +96,8 @@ export const logout=asyncHandler(async (req,res)=>{
             "httpOnly":true,
             "secure": true
           }
-          res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new  apiResponse("User LogOut",{},"200"))
+          res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new  apiResponse("User Log-Out",{},"200"))
     
 
 })
+export {deleteAll}
